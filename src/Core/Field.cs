@@ -8,9 +8,9 @@ namespace mnswpr.Core
         public const int SafeArea = 3;
 
         public int Width { get; private set; }
-        public int Height { get; private set; } 
+        public int Height { get; private set; }
 
-        public Cursor Cursor { get; private set; }
+        public Cursor Cursor { get; private set; } = new();
 
         public ref Cell this[int x, int y] => ref _cells[x, y];
 
@@ -20,8 +20,6 @@ namespace mnswpr.Core
         {
             Width = width;
             Height = height;
-
-            Cursor = new(width - 1, height - 1);
 
             _cells = new Cell[Width, Height];
         }
@@ -66,20 +64,20 @@ namespace mnswpr.Core
             }
         }
 
-        public void SpawnMines(Point start, int count)
+        public void SpawnMines(int count)
         {
             for (int i = 0; i < count; i++)
             {
                 int x = Random.Shared.Next(_cells.GetLength(0));
                 int y = Random.Shared.Next(_cells.GetLength(1));
 
-                if (new Vector2(x, y).DistanceTo(start.ToVector2()) < SafeArea)
+                if (new Vector2(x, y).DistanceTo(new Vector2(Cursor.X, Cursor.Y)) < SafeArea)
                     continue;
 
                 if (_cells[x, y].IsMine)
                     continue;
 
-                _cells[x, y] = new(true);
+                _cells[x, y].IsMine = true;
             }
 
             for (int y = 0; y < Height; y++)
