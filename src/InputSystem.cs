@@ -51,10 +51,8 @@ namespace mnswpr
                 y.Clamp(0, field.Height - 1));
 
 
-            if (Input.JustDown(Key.MouseLeft))
+            if (Input.JustDown(Key.MouseLeft) || Input.JustDown(Key.MouseMiddle))
                 RevealRequested?.Invoke();
-            else if (Input.JustDown(Key.MouseMiddle))
-                AutoRevealRequested?.Invoke();
             else if (Input.JustDown(Key.MouseRight))
                 FlagRequested?.Invoke();
         }

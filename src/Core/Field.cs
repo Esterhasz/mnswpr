@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace mnswpr.Core
 {
@@ -16,6 +17,8 @@ namespace mnswpr.Core
 
         private Cell[,] _cells;
 
+        private readonly Stack<(int x, int y)> _revealStack = new();
+
         public void New(int width, int height)
         {
             Width = width;
@@ -30,22 +33,70 @@ namespace mnswpr.Core
             if (!Cursor.Enabled)
                 return false;
 
-            ref Cell cell = ref _cells[Cursor.X, Cursor.Y];
+            int x = Cursor.X;
+            int y = Cursor.Y;
 
-            if (cell.IsMine)
-            {
-                cell.State = CellState.Revealed;
-                return true;
-            }
+            ref Cell cell = ref _cells[x, y];
 
             if (cell.State == CellState.Flagged)
-            {
-                cell.State = CellState.Revealed;
+                return false;
 
-                return cell.IsMine;
+            if (cell.State == CellState.Unrevealed)
+            {
+                if (cell.IsMine)
+                {
+                    cell.State = CellState.Revealed;
+                    return true;
+                }
+
+                SafeReveal(x, y);
+                return false;
             }
 
-            SafeReveal(Cursor.X, Cursor.Y);
+            int minX = Math.Max(x - 1, 0);
+            int maxX = Math.Min(x + 1, Width - 1);
+            int minY = Math.Max(y - 1, 0);
+            int maxY = Math.Min(y + 1, Height - 1);
+
+            int flagsCount = 0;
+
+            for (int nx = minX; nx <= maxX; nx++)
+            {
+                for (int ny = minY; ny <= maxY; ny++)
+                {
+                    if (nx == x && ny == y)
+                        continue;
+
+                    if (_cells[nx, ny].State == CellState.Flagged)
+                        flagsCount++;
+                }
+            }
+
+            if (flagsCount != cell.AdjacentMines)
+                return false;
+
+            for (int nx = minX; nx <= maxX; nx++)
+            {
+                for (int ny = minY; ny <= maxY; ny++)
+                {
+                    if (nx == x && ny == y)
+                        continue;
+
+                    ref Cell neighbor = ref _cells[nx, ny];
+
+                    if (neighbor.State != CellState.Unrevealed)
+                        continue;
+
+                    if (neighbor.IsMine)
+                    {
+                        neighbor.State = CellState.Revealed;
+                        return true;
+                    }
+
+                    SafeReveal(nx, ny);
+                }
+            }
+
             return false;
         }
         public void Flag()
@@ -63,57 +114,6 @@ namespace mnswpr.Core
             {
                 cell.State = CellState.Flagged;
             }
-        }
-
-        public bool AutoReveal()
-        {
-            int x = Cursor.X;
-            int y = Cursor.Y;
-
-            ref Cell cell = ref _cells[x, y];
-
-            int minX = Math.Max(x - 1, 0);
-            int maxX = Math.Min(x + 1, Width - 1);
-            int minY = Math.Max(y - 1, 0);
-            int maxY = Math.Min(y + 1, Height - 1);
-
-            int flagsCount = 0;
-
-            
-            for (int nx = minX; nx <= maxX; nx++)
-            {
-                for (int ny = minY; ny <= maxY; ny++)
-                {
-                    if (nx == x && ny == y)
-                        continue;
-
-
-                    if (_cells[nx, ny].State == CellState.Flagged)
-                        flagsCount++;
-                }
-            }
-
-
-            if (cell.AdjacentMines < 1 || flagsCount < cell.AdjacentMines)
-                return false;
-            
-            for (int nx = minX; nx <= maxX; nx++)
-            {
-                for (int ny = minY; ny <= maxY; ny++)
-                {
-                    ref Cell c = ref _cells[nx, ny];
-
-                    if (nx == x && ny == y || c.State == CellState.Flagged)
-                        continue;
-
-                    if (c.IsMine)
-                        return true;
-
-                    c.State = CellState.Revealed;
-                }
-            }
-
-            return false;
         }
 
         public void SpawnMines(int count)
@@ -146,34 +146,41 @@ namespace mnswpr.Core
 
         private void SafeReveal(int x, int y)
         {
-            ref var cell = ref _cells[x, y];
+            _revealStack.Clear();
+            _revealStack.Push((x, y));
 
-            if (cell.IsMine 
-                || cell.State == CellState.Revealed
-                || cell.State == CellState.Flagged)
-                return;
-
-            cell.State = CellState.Revealed;
-            
-            if (cell.AdjacentMines > 0)
-                return;
-
-            int minX = Math.Max(x - 1, 0);
-            int maxX = Math.Min(x + 1, Width - 1);
-            int minY = Math.Max(y - 1, 0);
-            int maxY = Math.Min(y + 1, Height - 1);
-
-            for (int nx = minX; nx <= maxX; nx++)
+            while (_revealStack.Count > 0)
             {
-                for (int ny = minY; ny <= maxY; ny++)
-                {
-                    if (nx == x && ny == y)
-                        continue;
+                var (cx, cy) = _revealStack.Pop();
 
-                    SafeReveal(nx, ny);
+                ref Cell cell = ref _cells[cx, cy];
+
+                if (cell.IsMine
+                    || cell.State == CellState.Revealed
+                    || cell.State == CellState.Flagged)
+                    continue;
+
+                cell.State = CellState.Revealed;
+
+                if (cell.AdjacentMines > 0)
+                    continue;
+
+                int minX = Math.Max(cx - 1, 0);
+                int maxX = Math.Min(cx + 1, Width - 1);
+                int minY = Math.Max(cy - 1, 0);
+                int maxY = Math.Min(cy + 1, Height - 1);
+
+                for (int nx = minX; nx <= maxX; nx++)
+                {
+                    for (int ny = minY; ny <= maxY; ny++)
+                    {
+                        if (nx == cx && ny == cy)
+                            continue;
+
+                        _revealStack.Push((nx, ny));
+                    }
                 }
             }
-
         }
         private int GetAdjacentMines(int x, int y)
         {

@@ -21,7 +21,6 @@ namespace mnswpr
             Field = field;
 
             input.RevealRequested += OnReveal;
-            input.AutoRevealRequested += OnAutoReveal;
             input.FlagRequested += OnFlag;
         }
 
@@ -68,25 +67,6 @@ namespace mnswpr
                     break;
             }
 
-        }
-        public void OnAutoReveal()
-        {
-            if (Field.AutoReveal())
-            {
-                for (int y = 0; y < Field.Height; y++)
-                {
-                    for (int x = 0; x < Field.Width; x++)
-                    {
-                        ref Cell cell = ref Field[x, y];
-
-                        if (cell.IsMine)
-                            cell.State = CellState.Revealed;
-                    }
-                }
-
-                Field.Cursor.Enabled = false;
-                State = GameState.GameOver;
-            }
         }
         public void OnFlag()
         {
