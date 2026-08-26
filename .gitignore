@@ -1,0 +1,8 @@
+.vs
+.vscode
+.config
+bin
+obj
+
+Content/obj
+Content/bin
