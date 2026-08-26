@@ -4,7 +4,7 @@
 
     <FontName>Pico-8-Mono</FontName>
 
-    <Size>12</Size>
+    <Size>5</Size>
     <Spacing>0</Spacing>
 	<UseKerning>true</UseKerning>
 	<Style>Regular</Style>
