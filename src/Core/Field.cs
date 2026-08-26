@@ -16,7 +16,7 @@ namespace mnswpr.Core
 
         private Cell[,] _cells;
 
-        public void New(int width, int height, int mineCount)
+        public void New(int width, int height)
         {
             Width = width;
             Height = height;
