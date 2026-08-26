@@ -4,7 +4,7 @@ namespace mnswpr.Core
     {
         Unrevealed,
         Revealed,
-        Flag,
+        Flagged,
     }
 
     public struct Cell(bool mine)

@@ -29,13 +29,38 @@ namespace mnswpr.Core
         public bool Reveal()
         {
             if (!Cursor.Enabled)
-                return true;
-
-            if (_cells[Cursor.X, Cursor.Y].IsMine)
                 return false;
 
+            ref Cell cell = ref _cells[Cursor.X, Cursor.Y];
+
+            if (cell.IsMine)
+                return true;
+
+            if (cell.State == CellState.Flagged)
+            {
+                cell.State = CellState.Revealed;
+
+                return cell.IsMine;
+            }
+
             SafeReveal(Cursor.X, Cursor.Y);
-            return true;
+            return false;
+        }
+        public void Flag()
+        {
+            if (!Cursor.Enabled)
+                return;
+
+            ref Cell cell = ref _cells[Cursor.X, Cursor.Y];
+
+            if (cell.State == CellState.Flagged)
+            {
+                cell.State = CellState.Unrevealed;
+            }
+            else if (cell.State == CellState.Unrevealed)
+            {
+                cell.State = CellState.Flagged;
+            }
         }
 
         public void SpawnMines(int count)
@@ -72,7 +97,7 @@ namespace mnswpr.Core
 
             if (cell.IsMine 
                 || cell.State == CellState.Revealed
-                || cell.State == CellState.Flag )
+                || cell.State == CellState.Flagged)
                 return;
 
             cell.State = CellState.Revealed;
