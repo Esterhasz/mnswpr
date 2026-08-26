@@ -5,14 +5,12 @@ using mnswpr.Core;
 using mnswpr.Resources;
 using System;
 using System.Collections.Generic;
+using mnswpr.Extensions;
 
 namespace mnswpr
 {
     public class FieldRenderer(Field field, Rectangle fieldArea)
     {
-        private const float GlyphWidth = 3f;
-        private const float GlyphHeight = 5f;
-
         private const float ReferenceCellSize = 7f;
 
         public static Color RevealedColor { get; } = new(160, 160, 160);
@@ -43,16 +41,7 @@ namespace mnswpr
             float cellWidth = FieldArea.Width / (float)Field.Width;
             float cellHeight = FieldArea.Height / (float)Field.Height;
 
-            int scaleFactor = Math.Max(1, (int)Math.Min(cellWidth / ReferenceCellSize, cellHeight / ReferenceCellSize));
-            Vector2 fontScale = new(scaleFactor, scaleFactor);
-
-            float renderGlyphWidth = GlyphWidth * scaleFactor;
-            float renderGlyphHeight = GlyphHeight * scaleFactor;
-
-            Vector2 textOffset = new(
-                (float)Math.Floor((cellWidth - renderGlyphWidth) / 2f),
-                (float)Math.Floor((cellHeight - renderGlyphHeight) / 2f)
-            );
+            Vector2 cellSize = new(cellWidth, cellHeight);
 
             for (int y = 0; y < Field.Height; y++)
             {
@@ -73,7 +62,7 @@ namespace mnswpr
                         case CellState.Revealed:
                             if (cell.IsMine)
                             {
-                                text = "Å";
+                                text = "\u00C6";
                                 textColor = Color.Black;
                             }
                             else
@@ -94,12 +83,14 @@ namespace mnswpr
                     if (Field.Cursor.X == x && Field.Cursor.Y == y)
                         cellColor = SelectedColor;
 
-                    draw.Rectangle(pos, new Vector2(cellWidth, cellHeight), cellColor);
+                    draw.Rectangle(pos, cellSize, cellColor);
 
-                    if (text != " " && !(cell.State == CellState.Revealed && cell.AdjacentMines == 0 && !cell.IsMine))
+                    if (text != " ")
                     {
-                        Vector2 textPos = pos + textOffset;
-                        draw.String(text, Fonts.Pico_8, textPos, textColor, fontScale, Vector2.Zero);
+                        int scaleFactor = Math.Max(1, (int)Math.Min(cellWidth / ReferenceCellSize, cellHeight / ReferenceCellSize));
+                        Vector2 fontScale = new(scaleFactor, scaleFactor);
+                        
+                        draw.CenteredChar(text[0], Fonts.Pico_8, pos + cellSize / 2, textColor, fontScale, 0);
                     }
                 }
             }
