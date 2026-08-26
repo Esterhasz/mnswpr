@@ -1,21 +1,30 @@
 using Microsoft.Xna.Framework;
 using System;
-using System.Drawing;
 
 namespace mnswpr.Core
 {
-    public class Field(int width, int height, int mineCount)
+    public class Field
     {
         public static Vector2 SafeArea { get; } = new(3, 3);
-        
-        private Cell[,] _cells = new Cell[width, height];
-        public int Width { get; } = width;
-        public int Height { get; } = height;
 
-        public Cursor Cursor { get; } = new(width - 1, height - 1);
+        public int Width { get; private set; }
+        public int Height { get; private set; } 
+
+        public Cursor Cursor { get; private set; }
 
         public ref Cell this[int x, int y] => ref _cells[x, y];
 
+        private Cell[,] _cells;
+
+        public void New(int width, int height, int mineCount)
+        {
+            Width = width;
+            Height = height;
+
+            Cursor = new(width - 1, height - 1);
+
+            _cells = new Cell[Width, Height];
+        }
 
         public bool Reveal()
         {
@@ -29,9 +38,9 @@ namespace mnswpr.Core
             return true;
         }
 
-        public void SpawnMines()
+        public void SpawnMines(int count)
         {
-            for (int i = 0; i < mineCount; i++)
+            for (int i = 0; i < count; i++)
             {
                 int x = Random.Shared.Next(_cells.GetLength(0));
                 int y = Random.Shared.Next(_cells.GetLength(1));
