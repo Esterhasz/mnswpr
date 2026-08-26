@@ -2,7 +2,7 @@
 <XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
   <Asset Type="Graphics:FontDescription">
 
-    <FontName>Pico-8-Mono</FontName>
+    <FontName>Pico-8 Regular</FontName>
 
     <Size>5</Size>
     <Spacing>0</Spacing>
@@ -12,7 +12,7 @@
     <CharacterRegions>
       <CharacterRegion>
         <Start>&#32;</Start>
-        <End>&#126;</End>
+        <End>&#219;</End>
       </CharacterRegion>
     </CharacterRegions>
   </Asset>
