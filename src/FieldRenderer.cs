@@ -81,7 +81,7 @@ namespace mnswpr
                             break;
                     }
 
-                    if (Field.Cursor.X == x && Field.Cursor.Y == y)
+                    if (Field.Cursor.X == x && Field.Cursor.Y == y && Field.Cursor.Enabled)
                         cellColor = SelectedColor;
 
                     draw.Rectangle(pos, cellSize, cellColor);
