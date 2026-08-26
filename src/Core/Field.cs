@@ -5,7 +5,7 @@ namespace mnswpr.Core
 {
     public class Field
     {
-        public static Vector2 SafeArea { get; } = new(3, 3);
+        public const int SafeArea = 3;
 
         public int Width { get; private set; }
         public int Height { get; private set; } 
@@ -34,7 +34,10 @@ namespace mnswpr.Core
             ref Cell cell = ref _cells[Cursor.X, Cursor.Y];
 
             if (cell.IsMine)
+            {
+                cell.State = CellState.Revealed;
                 return true;
+            }
 
             if (cell.State == CellState.Flagged)
             {
@@ -63,14 +66,14 @@ namespace mnswpr.Core
             }
         }
 
-        public void SpawnMines(int count)
+        public void SpawnMines(Point start, int count)
         {
             for (int i = 0; i < count; i++)
             {
                 int x = Random.Shared.Next(_cells.GetLength(0));
                 int y = Random.Shared.Next(_cells.GetLength(1));
 
-                if (new Vector2(x, y).DistanceTo(SafeArea) < 3)
+                if (new Vector2(x, y).DistanceTo(start.ToVector2()) < SafeArea)
                     continue;
 
                 if (_cells[x, y].IsMine)
