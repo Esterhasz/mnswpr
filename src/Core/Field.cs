@@ -20,6 +20,7 @@ namespace mnswpr.Core
         {
             Width = width;
             Height = height;
+            Cursor.Enabled = true;
 
             _cells = new Cell[Width, Height];
         }
@@ -85,7 +86,7 @@ namespace mnswpr.Core
                 for (int x = 0; x < Width; x++)
                 {
                     if (_cells[x, y].IsMine)
-                        return;
+                        continue;
 
                     _cells[x, y].AdjacentMines = GetAdjacentMines(x, y);
                 }
@@ -102,8 +103,7 @@ namespace mnswpr.Core
                 return;
 
             cell.State = CellState.Revealed;
-            cell.AdjacentMines = GetAdjacentMines(x, y);
-
+            
             if (cell.AdjacentMines > 0)
                 return;
 
