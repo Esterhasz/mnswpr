@@ -27,7 +27,7 @@ namespace mnswpr
         
         public void New()
         {
-            Field.New(Config.FieldWidth, Config.FieldHeight);
+            Field.New(Main.Config.FieldWidth, Main.Config.FieldHeight);
             State = GameState.Innocent;
         }
         public void OnReveal()
@@ -35,7 +35,7 @@ namespace mnswpr
             switch (State)
             {
                 case GameState.Innocent:
-                    Field.SpawnMines(Config.MineCount);
+                    Field.SpawnMines(Main.Config.MineCount);
                     Field.Reveal();
                     State = GameState.Playing;
 
