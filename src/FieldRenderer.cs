@@ -1,10 +1,8 @@
 using Exfal.Drawing;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using mnswpr.Core;
 using mnswpr.Resources;
 using System;
-using System.Collections.Generic;
 using mnswpr.Extensions;
 
 namespace mnswpr
@@ -12,6 +10,9 @@ namespace mnswpr
     public class FieldRenderer(Field field, Rectangle fieldArea)
     {
         private const float ReferenceCellSize = 7f;
+
+        public const char FlagChar = 'P';
+        public const char MineChar = '\u00C6';
 
         public static Color RevealedColor { get; } = new(160, 160, 160);
         public static Color UnrevealedColor { get; } = new(190, 190, 190);
@@ -62,7 +63,7 @@ namespace mnswpr
                         case CellState.Revealed:
                             if (cell.IsMine)
                             {
-                                text = "\u00C6";
+                                text = $"{MineChar}";
                                 textColor = Color.Black;
                             }
                             else
@@ -75,7 +76,7 @@ namespace mnswpr
                             break;
 
                         case CellState.Flagged:
-                            text = "P";
+                            text = $"{FlagChar}";
                             textColor = FlagColor;
                             break;
                     }
