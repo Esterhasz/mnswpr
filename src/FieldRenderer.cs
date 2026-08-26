@@ -1,9 +1,9 @@
 using Exfal.Drawing;
 using Microsoft.Xna.Framework;
 using mnswpr.Core;
+using mnswpr.Extensions;
 using mnswpr.Resources;
 using System;
-using mnswpr.Extensions;
 
 namespace mnswpr
 {
@@ -11,25 +11,26 @@ namespace mnswpr
     {
         private const float ReferenceCellSize = 7f;
 
-        public const char FlagChar = 'P';
+        public const char FlagChar = '\u00C7';
         public const char MineChar = '\u00C6';
 
-        public static Color RevealedColor { get; } = new(160, 160, 160);
-        public static Color UnrevealedColor { get; } = new(190, 190, 190);
-        public static Color SelectedColor { get; } = new(210, 210, 210);
-        public static Color FlagColor { get; } = Color.Red;
+        public static Color GridColor { get; } = new(82, 82, 82);
+        public static Color RevealedColor { get; } = new(42, 42, 46);
+        public static Color UnrevealedColor { get; } = new(62, 64, 70);
+        public static Color SelectedColor { get; } = new(92, 96, 108);
+        public static Color FlagColor { get; } = new(235, 72, 72);
 
         public static Color[] NumberColors { get; } =
         [
-            RevealedColor * 0.95f,  // 0
-            Color.Blue,             // 1
-            Color.Green,            // 2
-            Color.Red,              // 3
-            Color.DarkBlue,         // 4
-            Color.DarkRed,          // 5
-            Color.DarkCyan,         // 6
-            Color.Black,            // 7
-            Color.LightGray,        // 8
+            new(145, 145, 150), 
+            new(82, 150, 255),  
+            new(85, 200, 130),  
+            new(235, 82, 82),   
+            new(145, 105, 235), 
+            new(235, 145, 75),  
+            new(70, 195, 195),  
+            new(205, 205, 210), 
+            new(120, 120, 125), 
         ];
 
         public Field Field { get; set; } = field;
@@ -70,7 +71,6 @@ namespace mnswpr
                             {
                                 text = $"{cell.AdjacentMines}";
                                 textColor = NumberColors[cell.AdjacentMines];
-                                textColor.A = 255;
                             }
                             cellColor = RevealedColor;
                             break;
@@ -81,7 +81,9 @@ namespace mnswpr
                             break;
                     }
 
-                    if (Field.Cursor.X == x && Field.Cursor.Y == y && Field.Cursor.Enabled)
+                    Cursor cur = Field.Cursor;
+
+                    if (cur.X == x && cur.Y == y)
                         cellColor = SelectedColor;
 
                     draw.Rectangle(pos, cellSize, cellColor);
@@ -94,6 +96,17 @@ namespace mnswpr
                         draw.CenteredChar(text[0], Fonts.Pico_8, pos + cellSize / 2, textColor, fontScale, 0);
                     }
                 }
+            }
+
+            for (int x = 0; x < Field.Width; x++)
+            {
+                Vector2 end = (cellSize * new Vector2(x + 1, Field.Height)).Rounded();
+                draw.Line(end.WithY(0), end, GridColor, 2);
+            }
+            for (int y = 0; y < Field.Height; y++)
+            {
+                Vector2 end = (cellSize * new Vector2(Field.Width, y + 1));
+                draw.Line(end.WithX(0), end, GridColor, 2);
             }
         }
     }
