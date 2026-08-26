@@ -16,13 +16,13 @@ namespace mnswpr
 
         public Action RevealRequested { get; set; }
         public Action FlagRequested { get; set; }
+        public Action AutoRevealRequested { get; set; }
 
         public InputSystem(Camera camera, Field field, FieldRenderer fieldRenderer)
         {
             Field = field;
             Camera = camera;
             FieldRenderer = fieldRenderer;
-
         }
 
         public void Update(in ViewportPoint vp)
@@ -50,17 +50,13 @@ namespace mnswpr
                 x.Clamp(0, field.Width - 1), 
                 y.Clamp(0, field.Height - 1));
 
+
             if (Input.JustDown(Key.MouseLeft))
                 RevealRequested?.Invoke();
-            else if (Input.JustUp(Key.MouseRight))
+            else if (Input.JustDown(Key.MouseMiddle))
+                AutoRevealRequested?.Invoke();
+            else if (Input.JustDown(Key.MouseRight))
                 FlagRequested?.Invoke();
-
-        }
-
-        public static bool TrySelectCell(Vector2 worldPos, Rectangle fieldArea, Field field)
-        {
-            
-            return true;
         }
     }
 }

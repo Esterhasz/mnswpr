@@ -65,6 +65,57 @@ namespace mnswpr.Core
             }
         }
 
+        public bool AutoReveal()
+        {
+            int x = Cursor.X;
+            int y = Cursor.Y;
+
+            ref Cell cell = ref _cells[x, y];
+
+            int minX = Math.Max(x - 1, 0);
+            int maxX = Math.Min(x + 1, Width - 1);
+            int minY = Math.Max(y - 1, 0);
+            int maxY = Math.Min(y + 1, Height - 1);
+
+            int flagsCount = 0;
+
+            
+            for (int nx = minX; nx <= maxX; nx++)
+            {
+                for (int ny = minY; ny <= maxY; ny++)
+                {
+                    if (nx == x && ny == y)
+                        continue;
+
+
+                    if (_cells[nx, ny].State == CellState.Flagged)
+                        flagsCount++;
+                }
+            }
+
+
+            if (cell.AdjacentMines < 1 || flagsCount < cell.AdjacentMines)
+                return false;
+            
+            for (int nx = minX; nx <= maxX; nx++)
+            {
+                for (int ny = minY; ny <= maxY; ny++)
+                {
+                    ref Cell c = ref _cells[nx, ny];
+
+                    if (nx == x && ny == y || c.State == CellState.Flagged)
+                        continue;
+
+                    if (c.IsMine)
+                        return true;
+
+                    c.State = CellState.Revealed;
+                }
+            }
+
+            return false;
+        }
+
         public void SpawnMines(int count)
         {
             for (int i = 0; i < count; i++)
